@@ -6,7 +6,8 @@ import _ from 'lodash'
 
 class PokemonPage extends React.Component {
   state = {
-    pokemon: []
+    pokemon: [],
+    searchTerm: ''
   }
 
   componentDidMount() {
@@ -66,14 +67,26 @@ class PokemonPage extends React.Component {
     })
   }
 
+  handleChange = (e) => {
+    // debugger
+    console.log(e.target.value)
+    this.setState({
+      searchTerm: e.target.value.trim().toLowerCase()
+    })
+  }
+
+  filteredPokemon = () => {
+    return this.state.pokemon.filter(pokemonObj => pokemonObj.name.toLowerCase().includes(this.state.searchTerm))
+  }
+
   render() {
     return (
       <div>
         <h1>Pokemon Searcher</h1>
         <br />
-        <Search onSearchChange={_.debounce(() => console.log('🤔'), 500)} showNoResults={false} />
+        <Search onSearchChange={this.handleChange} showNoResults={false} />
         <br />
-        <PokemonCollection changePokemonSprite={this.changePokemonSprite} pokemon={this.state.pokemon} />
+        <PokemonCollection changePokemonSprite={this.changePokemonSprite} pokemon={this.filteredPokemon()} />
         <br />
         <PokemonForm createNewPokemon={this.createNewPokemon} pokemon={this.state.pokemon}/>
       </div>
