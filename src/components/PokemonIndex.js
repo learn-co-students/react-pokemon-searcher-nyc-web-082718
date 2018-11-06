@@ -5,6 +5,67 @@ import { Search } from 'semantic-ui-react'
 import _ from 'lodash'
 
 class PokemonPage extends React.Component {
+  state = {
+    pokemon: []
+  }
+
+  componentDidMount() {
+    fetch('http://localhost:3000/pokemon')
+    .then(response => response.json())
+    .then(pokemonData => {
+      // debugger
+      const pokemon = pokemonData.map(apiData => {
+        return Object.assign({}, apiData, {front: true})
+      })
+      console.log(pokemon)
+      this.setState({pokemon})
+    })
+  }
+
+  createNewPokemon = (name, hp, frontImg, backImg) => {
+    fetch('http://localhost:3000/pokemon', {
+      'method': 'POST',
+      'headers': {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      'body': JSON.stringify({
+        'name': name,
+        'stats': [{
+          'name': 'hp',
+          'value': parseInt(hp)
+        }],
+        'sprites':{
+          'front': frontImg,
+          'back': backImg
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(parsed => {
+      console.log(parsed)
+      this.setState({
+        pokemon: [parsed,...this.state.pokemon]
+      })
+    })
+  }
+
+  changePokemonSprite = (pokemonId) => {
+    const updatedPokemon = this.state.pokemon.map(pokemonObj => {
+      if (pokemonObj.id === pokemonId) {
+        if (pokemonObj.front){
+          pokemonObj.front = false
+        } else {
+          pokemonObj.front = true
+        }
+      }
+      return pokemonObj
+    })
+    this.setState({
+      pokemon: updatedPokemon
+    })
+  }
+
   render() {
     return (
       <div>
@@ -12,9 +73,9 @@ class PokemonPage extends React.Component {
         <br />
         <Search onSearchChange={_.debounce(() => console.log('🤔'), 500)} showNoResults={false} />
         <br />
-        <PokemonCollection />
+        <PokemonCollection changePokemonSprite={this.changePokemonSprite} pokemon={this.state.pokemon} />
         <br />
-        <PokemonForm />
+        <PokemonForm createNewPokemon={this.createNewPokemon} pokemon={this.state.pokemon}/>
       </div>
     )
   }
