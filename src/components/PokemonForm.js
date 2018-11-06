@@ -29,6 +29,14 @@ class PokemonForm extends React.Component {
       </div>
     )
   }
+
+  handleSubmit = (e) => {
+    const name = e.target.name.value
+    const hp = e.target.hp.value
+    const front = e.target.frontUrl.value
+    const back = e.target.backUrl.value
+    this.props.postPokemon(name, hp, front, back)
+  }
 }
 
 export default PokemonForm
